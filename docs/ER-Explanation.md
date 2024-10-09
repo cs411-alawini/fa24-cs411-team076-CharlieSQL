@@ -1,6 +1,6 @@
 We have 5 total entities in our ER model: User, Past and Current Conditions, Biometrics, Diagnosis, and Lifestyle. 
 
-User is the only strong entity in the dataset, with everything else being a weak entity dependent on User. The entities are separate from each other based on their domains and categories. 
+User is the only strong entity in the dataset, with everything else being a weak entity dependent on User because they explain different things about the user. The entities are separate from each other based on their domains and categories. 
 
 For example, User stores a user’s ID as its primary key (listed as PatientId in the ER, but essentially any distinguishing ID will suffice), age, gender, and country make up a user’s “personal” profile. 
 
