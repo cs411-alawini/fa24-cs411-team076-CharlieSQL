@@ -18,7 +18,7 @@
 
 |   Info      |        Description     |
 | ----------- | ---------------------- |
-|  Title      |     Sleep Assistant    |
+|  Title      |     DiabetesInsight    |
 | System URL  |      link_to_system    |
 | Video Link  |      link_to_video     |
 
