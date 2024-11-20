@@ -4,6 +4,7 @@ import { UserInfo } from '../models/dataTypes';
 
 const router = Router();
 
+
 router.get('/', async (req: Request, res: Response) => {
     try {
         const users = await getAllUsers();

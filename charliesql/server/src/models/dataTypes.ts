@@ -29,7 +29,7 @@ export interface ConditionsInfo {
      HighChol: boolean;
      HighBP: boolean;
      HeartDisease: boolean;
-     Hyperten: boolean;
+     Hypertension: boolean;
 };
 
 export interface LifestyleInfo {
