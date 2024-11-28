@@ -1,18 +1,26 @@
 import express, { Request, Response } from 'express';
+import cors from 'cors';
 import userRoutes from './src/routes/userRoutes';
 import bioRoutes from './src/routes/bioRoutes';
+import dailyRoutes from './src/routes/dailyRoutes';
+import queryRoutes from './src/routes/queryRoutes';
 
 const app = express();
-// our SQL server is running on port 3306, so maybe make sure this app also runs on 3306
-const PORT = 3306;
+const PORT = process.env.PORT || 3007;
 
+app.use(cors());
 app.use(express.json());
+
+// Base route
 app.get('/api/', (req: Request, res: Response) => {
-    res.send('API of project');
+    res.send('Diabetes Management System API');
 });
 
-app.use('/users', userRoutes);  
-app.use('/biometrics', bioRoutes);
+// Routes
+app.use('/api/users', userRoutes);
+app.use('/api/biometrics', bioRoutes);
+app.use('/api/daily', dailyRoutes);
+app.use('/api/query', queryRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
