@@ -1,7 +1,43 @@
 import axios from 'axios';
 import { UserInfo, BiometricsInfo, ConditionsInfo, LifestyleInfo } from '../models/dataTypes';
 
-const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3007';
+const BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
+export const userService = {
+  createUser: async (userData: any) => {
+    const response = await fetch(`${BASE_URL}/api/users/create`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    return response.json();
+  },
+
+  updateUser: async (userId: string, userData: any) => {
+    const response = await fetch(`${BASE_URL}/api/users/update/${userId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    return response.json();
+  },
+
+  checkUserExists: async (userId: string) => {
+    const response = await fetch(`${BASE_URL}/api/users/check/${userId}`);
+    return response.json();
+  }
+};
+
+export const dailyService = {
+  submitDailyUpdate: async (type: string, data: any) => {
+    const response = await fetch(`${BASE_URL}/api/daily/${type}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  }
+};
 
 export const httpClient = axios.create({
     baseURL: BASE_URL,
@@ -9,38 +45,6 @@ export const httpClient = axios.create({
         'Content-Type': 'application/json'
     }
 });
-
-// User APIs
-export const getUsers = (): Promise<UserInfo[]> => {
-    return httpClient.get('/api/users').then(res => res.data);
-};
-
-export const createUser = (userData: Omit<UserInfo, 'User_Id'>): Promise<UserInfo> => {
-    return httpClient.post('/api/users', userData).then(res => res.data);
-};
-
-export const deleteUser = (userId: number): Promise<void> => {
-    return httpClient.delete(`/api/users/${userId}`);
-};
-
-// Biometrics APIs
-export const getBiometrics = (): Promise<BiometricsInfo[]> => {
-    return httpClient.get('/api/biometrics').then(res => res.data);
-};
-
-export const updateBiometrics = (data: Omit<BiometricsInfo, 'BioEntryDate'>): Promise<BiometricsInfo> => {
-    return httpClient.post('/api/daily/biometrics', data).then(res => res.data);
-};
-
-// Conditions APIs
-export const updateConditions = (data: Omit<ConditionsInfo, 'CondEntryDate'>): Promise<ConditionsInfo> => {
-    return httpClient.post('/api/daily/conditions', data).then(res => res.data);
-};
-
-// Lifestyle APIs
-export const updateLifestyle = (data: Omit<LifestyleInfo, 'LifeEntryDate'>): Promise<LifestyleInfo> => {
-    return httpClient.post('/api/daily/lifestyle', data).then(res => res.data);
-};
 
 // Advanced Query APIs
 export const getAdvancedQuery1 = () => {
