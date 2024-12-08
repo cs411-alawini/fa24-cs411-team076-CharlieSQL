@@ -1,71 +1,67 @@
 import { Router, Request, Response } from 'express';
 import { 
-    updateDailyBioInfo,
-    updateDailyCondInfo,
-    updateDailyLifeInfo
+    updateBiometricsWithRiskAlerts,
+    updateLifestyleWithRewards
 } from '../services/database';
 
 const router = Router();
 
 // Helper function to format date for MySQL
-const formatDateForMySQL = (date: Date): string => {
-    return date.toISOString().slice(0, 10); // Returns 'YYYY-MM-DD'
-};
+// const formatDateForMySQL = (date: Date): string => {
+//     return date.toISOString().slice(0, 10); // Returns 'YYYY-MM-DD'
+// };
 
-router.post('/biometrics', async (req: Request, res: Response) => {
-    const { userId, BMI, HbA1c, BloodGlucose } = req.body;
+// New combined route for biometrics and conditions
+router.post('/biometricsAndConditions', async (req: Request, res: Response) => {
+    const { 
+        userId, 
+        date,
+        bmi, 
+        hba1c, 
+        bloodGlucose,
+        stroke,
+        highChol,
+        highBP,
+        heartDisease,
+        hypertension
+    } = req.body;
+
     try {
-        const formattedDate = formatDateForMySQL(new Date());
-        const result = await updateDailyBioInfo(
+        await updateBiometricsWithRiskAlerts(
             userId,
-            formattedDate,
-            BMI,
-            HbA1c,
-            BloodGlucose
+            date,
+            bmi,
+            hba1c,
+            bloodGlucose,
+            heartDisease,
+            stroke,
+            highChol,
+            highBP,
+            hypertension
         );
-        console.log(20, "Verification of biometrics entry update:", result);
-        res.status(200).json(result);
+        res.status(200).json({ message: "Successfully updated biometrics and conditions" });
     } catch (error) {
-        res.status(500).json({ message: "Error updating biometrics" });
+        console.error("Error in biometrics and conditions update:", error);
+        res.status(500).json({ message: "Error updating biometrics and conditions" });
     }
 });
 
-router.post('/conditions', async (req: Request, res: Response) => {
-    const { userId, Stroke, HighChol, HighBP, HeartDisease, Hypertension } = req.body;
-    try {
-        const formattedDate = formatDateForMySQL(new Date());
-        const result = await updateDailyCondInfo(
-            userId,
-            formattedDate,
-            Stroke,
-            HighChol,
-            HighBP,
-            HeartDisease,
-            Hypertension
-        );
-        console.log(39, "Verification of conditions entry update:", result);
-        res.status(200).json(result);
-    } catch (error) {
-        res.status(500).json({ message: "Error updating conditions" });
-    }
-});
-
+// Updated lifestyle route to use transaction function
 router.post('/lifestyle', async (req: Request, res: Response) => {
-    const { userId, Smoker, CheckChol, Fruits, Veggies } = req.body;
+    const { userId, date, smoker, checkChol, fruits, veggies } = req.body;
     try {
-        const formattedDate = formatDateForMySQL(new Date());
-        const result = await updateDailyLifeInfo(
+        await updateLifestyleWithRewards(
             userId,
-            formattedDate,
-            Smoker,
-            CheckChol,
-            Fruits,
-            Veggies
+            date,
+            veggies,
+            fruits,
+            smoker,
+            checkChol
         );
-        console.log(57, "Verification of lifestyle entry update:", result);
-        res.status(200).json(result);
+        res.status(200).json({ message: "Successfully updated lifestyle info" });
     } catch (error) {
-        res.status(500).json({ message: "Error updating lifestyle" });
+        console.error("Error in lifestyle update:", error);
+        res.status(500).json({ message: "Error updating lifestyle info" });
     }
 });
 

@@ -29,8 +29,17 @@ export const userService = {
 };
 
 export const dailyService = {
-  submitDailyUpdate: async (type: string, data: any) => {
-    const response = await fetch(`${BASE_URL}/api/daily/${type}`, {
+  submitBiometricsAndConditions: async (data: any) => {
+    const response = await fetch(`${BASE_URL}/api/daily/biometricsAndConditions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+
+  submitLifestyle: async (data: any) => {
+    const response = await fetch(`${BASE_URL}/api/daily/lifestyle`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -61,4 +70,14 @@ export const getAdvancedQuery3 = () => {
 
 export const getAdvancedQuery4 = () => {
     return httpClient.get('/api/query/4').then(res => res.data);
+};
+
+export const doctorService = {
+    getDoctorStats: async () => {
+        const response = await fetch(`${BASE_URL}/api/doctor-view`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch doctor statistics');
+        }
+        return response.json();
+    }
 };

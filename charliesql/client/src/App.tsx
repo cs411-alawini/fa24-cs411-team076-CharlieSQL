@@ -7,6 +7,7 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import UserManagementPage from './pages/UserManagementPage';
 import DailyUpdatePage from './pages/DailyUpdatePage';
+import DoctorViewPage from './pages/DoctorViewPage';
 
 const App: React.FC = () => {
   const isAuthenticated = () => {
@@ -66,6 +67,11 @@ const App: React.FC = () => {
           <Route path="/daily-update" element={
             <ProtectedRoute title="Daily Health Update">
               <DailyUpdatePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/doctor-view" element={
+            <ProtectedRoute title="Doctor View">
+              <DoctorViewPage />
             </ProtectedRoute>
           } />
         </Routes>

@@ -19,6 +19,14 @@ const HomePage = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-2">Daily Updates</h2>
         <p className="text-gray-600">Log daily health metrics and lifestyle information</p>
       </Link>
+
+      <Link 
+        to="/doctor-view"
+        className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
+      >
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">Doctor View</h2>
+        <p className="text-gray-600">View patient data at scale</p>
+      </Link>
     </div>
   );
 };

@@ -108,22 +108,29 @@ export async function createUser(age: number, gender: string, country: string, d
 };
 /* Functions below are to handle creating new entries for biometrics, conditions, lifestyle depending on which form user fills
 These functions assume all relevant tuple values are filled, and handled in the frontend before being called */
-export async function updateDailyBioInfo(user: number, date: string, BMI: number, HbA1c: number, BloodGlucose: number): Promise<BiometricsInfo[] | null> {
-    const [result] = await pool.query('SELECT MAX(BioEntryDate) as maxDate FROM diabetes.BIOMETRICSINFO WHERE User_Id = ?', [user]);
-    const lastUpdateDate = (result as any)[0].maxDate;
-    let queryString = "";
+export async function updateDailyBioInfo(pool: any, user: number, date: string, BMI?: number, HbA1c?: number, BloodGlucose?: number): Promise<BiometricsInfo[] | null> {
+    // const [result] = await pool.query('SELECT MAX(BioEntryDate) as maxDate FROM diabetes.BIOMETRICSINFO WHERE User_Id = ?', [user]);
+    // const lastUpdateDate = (result as any)[0].maxDate;
+    // let queryString = "";
 
-    // Format both dates to YYYY-MM-DD for comparison
-    const formattedLastDate = lastUpdateDate ? new Date(lastUpdateDate).toISOString().slice(0, 10) : null;
-    const formattedCurrentDate = new Date(date).toISOString().slice(0, 10);
+    // // Format both dates to YYYY-MM-DD for comparison
+    // const formattedLastDate = lastUpdateDate ? new Date(lastUpdateDate).toISOString().slice(0, 10) : null;
+    // const formattedCurrentDate = new Date(date).toISOString().slice(0, 10);
 
-    if (formattedLastDate === formattedCurrentDate) {
-        queryString = `UPDATE diabetes.BIOMETRICSINFO SET BMI = ${BMI}, HbA1c = ${HbA1c}, BloodGlucose = ${BloodGlucose} WHERE User_Id = ${user} AND BioEntryDate = '${date}'`;
-        console.log("Updating BIOMETRICSINFO tuple");
-    } else {
-        queryString = `INSERT INTO diabetes.BIOMETRICSINFO (User_Id, BioEntryDate, BMI, HbA1c, BloodGlucose) VALUES (${user}, '${date}', ${BMI}, ${HbA1c}, ${BloodGlucose})`;
-        console.log("Creating BIOMETRICSINFO tuple");
-    }
+    // if (formattedLastDate === formattedCurrentDate) {
+    //     queryString = `UPDATE diabetes.BIOMETRICSINFO SET BMI = ${BMI}, HbA1c = ${HbA1c}, BloodGlucose = ${BloodGlucose} WHERE User_Id = ${user} AND BioEntryDate = '${date}'`;
+    //     console.log("Updating BIOMETRICSINFO tuple");
+    // } else {
+    //     queryString = `INSERT INTO diabetes.BIOMETRICSINFO (User_Id, BioEntryDate, BMI, HbA1c, BloodGlucose) VALUES (${user}, '${date}', ${BMI}, ${HbA1c}, ${BloodGlucose})`;
+    //     console.log("Creating BIOMETRICSINFO tuple");
+    // }
+    let queryString = `
+      INSERT INTO diabetes.BIOMETRICSINFO (User_Id, BioEntryDate, BMI, HbA1c, BloodGlucose) 
+      VALUES (${user}, '${date}', ${BMI}, ${HbA1c}, ${BloodGlucose}) 
+      ON DUPLICATE KEY UPDATE 
+        BMI = VALUES(BMI),
+        HbA1c = VALUES(HbA1c),
+        BloodGlucose = VALUES(BloodGlucose)`;
     try {
         await pool.query(queryString);
     } catch (error) {
@@ -135,21 +142,30 @@ export async function updateDailyBioInfo(user: number, date: string, BMI: number
     return confirmation as BiometricsInfo[];
 }
 
-export async function updateDailyCondInfo(user: number, date: string, Stroke: number, HighChol: number, HighBP: number, HeartDisease: number, Hypertension: number): Promise<ConditionsInfo[] | null> {
-    const [result] = await pool.query('SELECT MAX(CondEntryDate) as maxDate FROM diabetes.CONDITIONSINFO WHERE User_Id = ?', [user]);
-    const lastUpdateDate = (result as any)[0].maxDate;
-    let queryString = "";
+export async function updateDailyCondInfo(pool: any, user: number, date: string, Stroke?: number, HighChol?: number, HighBP?: number, HeartDisease?: number, Hypertension?: number): Promise<ConditionsInfo[] | null> {
+    // const [result] = await pool.query('SELECT MAX(CondEntryDate) as maxDate FROM diabetes.CONDITIONSINFO WHERE User_Id = ?', [user]);
+    // const lastUpdateDate = (result as any)[0].maxDate;
+    // let queryString = "";
 
-    const formattedLastDate = lastUpdateDate ? new Date(lastUpdateDate).toISOString().slice(0, 10) : null;
-    const formattedCurrentDate = new Date(date).toISOString().slice(0, 10);
+    // const formattedLastDate = lastUpdateDate ? new Date(lastUpdateDate).toISOString().slice(0, 10) : null;
+    // const formattedCurrentDate = new Date(date).toISOString().slice(0, 10);
 
-    if (formattedLastDate === formattedCurrentDate) {
-        queryString = `UPDATE diabetes.CONDITIONSINFO SET Stroke = ${Stroke}, HighChol = ${HighChol}, HighBP = ${HighBP}, HeartDisease = ${HeartDisease}, Hypertension = ${Hypertension} WHERE User_Id = ${user} AND CondEntryDate = '${date}'`;
-        console.log("Updating CONDITIONSINFO tuple");
-    } else {
-        queryString = `INSERT INTO diabetes.CONDITIONSINFO (User_Id, CondEntryDate, Stroke, HighChol, HighBP, HeartDisease, Hypertension) VALUES (${user}, '${date}', ${Stroke}, ${HighChol}, ${HighBP}, ${HeartDisease}, ${Hypertension})`;
-        console.log("Creating CONDITIONSINFO tuple");
-    }
+    // if (formattedLastDate === formattedCurrentDate) {
+    //     queryString = `UPDATE diabetes.CONDITIONSINFO SET Stroke = ${Stroke}, HighChol = ${HighChol}, HighBP = ${HighBP}, HeartDisease = ${HeartDisease}, Hypertension = ${Hypertension} WHERE User_Id = ${user} AND CondEntryDate = '${date}'`;
+    //     console.log("Updating CONDITIONSINFO tuple");
+    // } else {
+    //     queryString = `INSERT INTO diabetes.CONDITIONSINFO (User_Id, CondEntryDate, Stroke, HighChol, HighBP, HeartDisease, Hypertension) VALUES (${user}, '${date}', ${Stroke}, ${HighChol}, ${HighBP}, ${HeartDisease}, ${Hypertension})`;
+    //     console.log("Creating CONDITIONSINFO tuple");
+    // }
+    let queryString = `
+      INSERT INTO diabetes.CONDITIONSINFO (User_Id, CondEntryDate, Stroke, HighChol, HighBP, HeartDisease, Hypertension) 
+      VALUES (${user}, '${date}', ${Stroke}, ${HighChol}, ${HighBP}, ${HeartDisease}, ${Hypertension}) 
+      ON DUPLICATE KEY UPDATE 
+        Stroke = VALUES(Stroke),
+        HighChol = VALUES(HighChol),
+        HighBP = VALUES(HighBP),
+        HeartDisease = VALUES(HeartDisease),
+        Hypertension = VALUES(Hypertension)`;
     try {
         await pool.query(queryString);
     } catch (error) {
@@ -161,21 +177,29 @@ export async function updateDailyCondInfo(user: number, date: string, Stroke: nu
     return confirmation as ConditionsInfo[];
 }
 
-export async function updateDailyLifeInfo(user: number, date: string, Smoker: number, CheckChol: number, Fruits: number, Veggies: number): Promise<LifestyleInfo[] | null> {
-    const [result] = await pool.query('SELECT MAX(LifeEntryDate) as maxDate FROM diabetes.LIFESTYLEINFO WHERE User_Id = ?', [user]);
-    const lastUpdateDate = (result as any)[0].maxDate;
-    let queryString = "";
+export async function updateDailyLifeInfo(pool: any, user: number, date: string, Smoker?: number, CheckChol?: number, Fruits?: number, Veggies?: number): Promise<LifestyleInfo[] | null> {
+    // const [result] = await pool.query('SELECT MAX(LifeEntryDate) as maxDate FROM diabetes.LIFESTYLEINFO WHERE User_Id = ?', [user]);
+    // const lastUpdateDate = (result as any)[0].maxDate;
+    // let queryString = "";
 
-    const formattedLastDate = lastUpdateDate ? new Date(lastUpdateDate).toISOString().slice(0, 10) : null;
-    const formattedCurrentDate = new Date(date).toISOString().slice(0, 10);
+    // const formattedLastDate = lastUpdateDate ? new Date(lastUpdateDate).toISOString().slice(0, 10) : null;
+    // const formattedCurrentDate = new Date(date).toISOString().slice(0, 10);
 
-    if (formattedLastDate === formattedCurrentDate) {
-        queryString = `UPDATE diabetes.LIFESTYLEINFO SET Smoker = ${Smoker}, CheckChol = ${CheckChol}, Fruits = ${Fruits}, Veggies = ${Veggies} WHERE User_Id = ${user} AND LifeEntryDate = '${date}'`;
-        console.log("Updating LIFESTYLEINFO tuple");
-    } else {
-        queryString = `INSERT INTO diabetes.LIFESTYLEINFO (User_Id, LifeEntryDate, Smoker, CheckChol, Fruits, Veggies) VALUES (${user}, '${date}', ${Smoker}, ${CheckChol}, ${Fruits}, ${Veggies})`;
-        console.log("Creating LIFESTYLEINFO tuple");
-    }
+    // if (formattedLastDate === formattedCurrentDate) {
+    //     queryString = `UPDATE diabetes.LIFESTYLEINFO SET Smoker = ${Smoker}, CheckChol = ${CheckChol}, Fruits = ${Fruits}, Veggies = ${Veggies} WHERE User_Id = ${user} AND LifeEntryDate = '${date}'`;
+    //     console.log("Updating LIFESTYLEINFO tuple");
+    // } else {
+    //     queryString = `INSERT INTO diabetes.LIFESTYLEINFO (User_Id, LifeEntryDate, Smoker, CheckChol, Fruits, Veggies) VALUES (${user}, '${date}', ${Smoker}, ${CheckChol}, ${Fruits}, ${Veggies})`;
+    //     console.log("Creating LIFESTYLEINFO tuple");
+    // }
+    let queryString = `
+      INSERT INTO diabetes.LIFESTYLEINFO (User_Id, LifeEntryDate, Smoker, CheckChol, Fruits, Veggies) 
+      VALUES (${user}, '${date}', ${Smoker}, ${CheckChol}, ${Fruits}, ${Veggies}) 
+      ON DUPLICATE KEY UPDATE 
+        Smoker = VALUES(Smoker),
+        CheckChol = VALUES(CheckChol),
+        Fruits = VALUES(Fruits),
+        Veggies = VALUES(Veggies)`;
     try {
         await pool.query(queryString);
     } catch (error) {
@@ -271,4 +295,137 @@ export async function checkUserExists(userId: number): Promise<boolean> {
         console.error('Error checking user existence:', error);
         throw error;
     }
+}
+
+// Add new transaction functions
+export async function updateBiometricsWithRiskAlerts(
+  userId: number,
+  date: string,
+  bmi?: number,  // BIOMETRICSINFO attributes
+  hba1c?: number,
+  bloodGlucose?: number,
+  heartDisease?: number, // CONDITIONSINFO attributes
+  stroke?: number,
+  highChol?: number,
+  highBP?: number, 
+  hypertension?: number
+): Promise<void> {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const confirmBioUpdate = await updateDailyBioInfo(connection, userId, date, bmi, hba1c, bloodGlucose);
+    const confirmCondUpdate = await updateDailyCondInfo(connection, userId, date, stroke, highChol, highBP, heartDisease, hypertension);
+    if (!confirmBioUpdate || !confirmCondUpdate) {
+      throw new Error('Failed to update biometrics or conditions info');
+    }
+    // await connection.query(
+    //   'UPDATE BIOMETRICSINFO SET BMI = ?, HbA1c = ?, BloodGlucose = ? WHERE User_Id = ?',
+    //   [bmi, hba1c, bloodGlucose, userId]
+    // );
+
+    await connection.query(`
+      INSERT INTO RiskAlerts (User_Id, Alert_Message, Created_On)
+      SELECT DISTINCT u.User_Id, 
+        'Elevated risk detected: Review health conditions and consult your physician.', 
+        NOW()
+      FROM USERINFO u
+      JOIN BIOMETRICSINFO b ON u.User_Id = b.User_Id
+      JOIN CONDITIONSINFO c ON u.User_Id = c.User_Id
+      WHERE u.User_Id = ? 
+      AND (b.BMI > 30 
+        OR b.HbA1c > 6.4 
+        OR b.BloodGlucose > 125 
+        OR c.HeartDisease = 1 
+        OR c.HighBP = 1)`,
+      [userId]
+    );
+
+    await connection.query(
+      'INSERT INTO UpdateLog (User_Id, Updated_On, Update_Reason) VALUES (?, NOW(), ?)',
+      [userId, 'Daily biometrics update with risk evaluation']
+    );
+
+    await connection.commit();
+  } catch (error) {
+    console.log(349, "Biometrics and Conditions transaction failed");
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+export async function updateLifestyleWithRewards(
+  userId: number,
+  date: string,
+  veggies?: number,
+  fruits?: number,
+  smoker?: number,
+  checkChol?: number
+): Promise<void> {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const confirmLifeUpdate = await updateDailyLifeInfo(connection, userId, date, smoker, checkChol, fruits, veggies);
+    if (!confirmLifeUpdate) {
+      throw new Error('Failed to update lifestyle info');
+    }
+    // await connection.query(
+    //   'UPDATE LIFESTYLEINFO SET Veggies = ?, Fruits = ?, Smoker = ?, CheckChol = ? WHERE User_Id = ?',
+    //   [veggies, fruits, smoker, checkChol, userId]
+    // );
+
+    await connection.query(`
+      INSERT INTO Incentives (User_Id, Incentive_Description, Granted_On)
+      SELECT DISTINCT l1.User_Id, 'Healthy Lifestyle Reward', NOW()
+      FROM LIFESTYLEINFO l1
+      JOIN LIFESTYLEINFO l2 ON l1.User_Id = l2.User_Id
+      WHERE l1.User_Id = ?
+      AND l1.LifeEntryDate = ?
+      AND l2.LifeEntryDate < l1.LifeEntryDate
+      AND (l1.Veggies > l2.Veggies 
+        OR l1.Fruits > l2.Fruits 
+        OR l1.CheckChol > l2.CheckChol 
+        OR l1.Smoker < l2.Smoker)
+      ORDER BY l2.LifeEntryDate DESC
+      LIMIT 1`,
+      [userId, date]
+    );
+
+    await connection.query(
+      'INSERT INTO UpdateLog (User_Id, Updated_On, Update_Reason) VALUES (?, NOW(), ?)',
+      [userId, 'Lifestyle update and improvement evaluation']
+    );
+
+    await connection.commit();
+  } catch (error) {
+    console.log(402, "Lifestyle and Incentives transaction failed");
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
+}
+
+export async function getDoctorView(): Promise<RowDataPacket[] | null> {
+    let queryString = "CALL GetAgeRangeStats()"
+    try {
+        const [rows] = await pool.query(queryString);
+        return rows as RowDataPacket[];
+    } catch (error) {
+        console.error('Error executing advanced query', error);
+    }
+    return null;
+}
+export async function getHighRiskPatients(): Promise<RowDataPacket[] | null> {
+    let queryString = "CALL GetHighRiskPatients()"
+    try {
+        const [rows] = await pool.query(queryString);
+        return rows as RowDataPacket[];
+    } catch (error) {
+        console.error('Error executing advanced query', error);
+    }
+    return null;
 }
