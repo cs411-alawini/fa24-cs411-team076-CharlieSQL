@@ -21,6 +21,14 @@ const HomePage = () => {
       </Link>
 
       <Link 
+        to="/view-user"
+        className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
+      >
+        <h2 className="text-xl font-semibold text-gray-900 mb-2">View User Info</h2>
+        <p className="text-gray-600">View your user profile information</p>
+      </Link>
+
+      <Link 
         to="/doctor-view"
         className="bg-white shadow rounded-lg p-6 hover:shadow-lg transition-shadow"
       >

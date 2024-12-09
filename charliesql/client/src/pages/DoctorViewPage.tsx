@@ -48,7 +48,7 @@ const DoctorViewPage = () => {
                     Back to Home
                 </Link>
                 <select 
-                    className="mt-4"
+                    className="mt-4 rounded-xl w-2/3"
                     value={viewType} 
                     onChange={handleViewTypeChange}
                 >

@@ -1,7 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { 
-    updateBiometricsWithRiskAlerts,
-    updateLifestyleWithRewards
+import { updateBiometricsWithRiskAlerts,updateLifestyleWithRewards
 } from '../services/database';
 
 const router = Router();

@@ -25,6 +25,13 @@ export const userService = {
   checkUserExists: async (userId: string) => {
     const response = await fetch(`${BASE_URL}/api/users/check/${userId}`);
     return response.json();
+  },
+
+  deleteUser: async (userId: string) => {
+    const response = await fetch(`${BASE_URL}/api/users/delete/${userId}`, {
+      method: 'DELETE',
+    });
+    return response.json();
   }
 };
 
@@ -77,6 +84,21 @@ export const doctorService = {
         const response = await fetch(`${BASE_URL}/api/doctor-view`);
         if (!response.ok) {
             throw new Error('Failed to fetch doctor statistics');
+        }
+        return response.json();
+    }
+};
+
+export const viewUserService = {
+    getUserViewData: async (userId: string, type: string, date: string) => {
+        const exists = await userService.checkUserExists(userId);
+        if (!exists.exists) {
+            throw new Error('User not found');
+        }
+        
+        const response = await fetch(`${BASE_URL}/api/view-user/${userId}/${type}/${date}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch user view data');
         }
         return response.json();
     }

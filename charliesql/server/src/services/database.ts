@@ -211,44 +211,6 @@ export async function updateDailyLifeInfo(pool: any, user: number, date: string,
     return confirmation as LifestyleInfo[];
 }
 
-// Functions to handle advanced queries, implementing read part of CRUD functionality
-export async function getQuery1(): Promise<RowDataPacket[] | null> {
-    try {
-        const [rows] = await pool.query(advQuery1);
-        return rows as RowDataPacket[];
-    } catch (error) {
-        console.error('Error executing advanced query', error);
-    }
-    return null;
-};
-export async function getQuery2(): Promise<RowDataPacket[] | null> {
-    try {
-        const [rows] = await pool.query(advQuery2);
-        return rows as RowDataPacket[];
-    } catch (error) {
-        console.error('Error executing advanced query', error);
-    }
-    return null;
-};
-export async function getQuery3(): Promise<RowDataPacket[] | null> {
-    try {
-        const [rows] = await pool.query(advQuery3);
-        return rows as RowDataPacket[];
-    } catch (error) {
-        console.error('Error executing advanced query', error);
-    }
-    return null;
-};
-export async function getQuery4(): Promise<RowDataPacket[] | null> {
-    try {
-        const [rows] = await pool.query(advQuery4);
-        return rows as RowDataPacket[];
-    } catch (error) {
-        console.error('Error executing advanced query', error);
-    }
-    return null;
-};
-
 // Function to handle user deletion, part of CRUD functionality
 export async function deleteUser(userId: number): Promise<void> {
     const queryString = `DELETE FROM diabetes.USERINFO WHERE User_Id = ${userId}`;
@@ -298,6 +260,7 @@ export async function checkUserExists(userId: number): Promise<boolean> {
 }
 
 // Add new transaction functions
+// Query to make use of first transaction
 export async function updateBiometricsWithRiskAlerts(
   userId: number,
   date: string,
@@ -355,7 +318,7 @@ export async function updateBiometricsWithRiskAlerts(
     connection.release();
   }
 }
-
+// Query to make use of second transaction
 export async function updateLifestyleWithRewards(
   userId: number,
   date: string,
@@ -408,7 +371,7 @@ export async function updateLifestyleWithRewards(
     connection.release();
   }
 }
-
+// Queries to make use of stored procedures
 export async function getDoctorView(): Promise<RowDataPacket[] | null> {
     let queryString = "CALL GetAgeRangeStats()"
     try {
@@ -426,6 +389,87 @@ export async function getHighRiskPatients(): Promise<RowDataPacket[] | null> {
         return rows as RowDataPacket[];
     } catch (error) {
         console.error('Error executing advanced query', error);
+    }
+    return null;
+}
+
+export async function getUserEntryInfo(userId: number, type: string, date: string): Promise<RowDataPacket[] | null> {
+    const typeMap: { [key: string]: string } = {
+        'biometrics': 'BioEntryDate',
+        'conditions': 'CondEntryDate',
+        'lifestyle': 'LifeEntryDate'
+    }
+    const tableMap: { [key: string]: string } = {
+        'biometrics': 'BIOMETRICSINFO',
+        'conditions': 'CONDITIONSINFO',
+        'lifestyle': 'LIFESTYLEINFO'
+    }
+    let queryString = `
+    SELECT * 
+    FROM diabetes.${tableMap[type]}
+    WHERE User_Id = ${userId} AND ${typeMap[type]} <= '${date}'
+    ORDER BY ${typeMap[type]} DESC
+    LIMIT 5`;
+    try {
+        const [rows] = await pool.query(queryString);
+        return rows as RowDataPacket[];
+    } catch (error) {
+        console.error('Error querying for user daily entries', error);
+    }
+    return null;
+}
+export async function getUserLogs(userId: number): Promise<RowDataPacket[] | null> {
+    let queryString = `
+    SELECT * 
+    FROM diabetes.UpdateLog
+    WHERE User_Id = ${userId}
+    ORDER BY Log_Id DESC, Updated_On DESC
+    LIMIT 5`;
+    try {
+        const [rows] = await pool.query(queryString);
+        return rows as RowDataPacket[];
+    } catch (error) {
+        console.error('Error querying for user update logs', error);
+    }
+    return null;
+}
+export async function getUserRiskAlerts(userId: number): Promise<RowDataPacket[] | null> {
+    let queryString = `
+    SELECT *
+    FROM diabetes.RiskAlerts
+    WHERE User_Id = ${userId}
+    ORDER BY Alert_Id DESC, Created_On DESC
+    LIMIT 5`;
+    try {
+        const [rows] = await pool.query(queryString);
+        return rows as RowDataPacket[];
+    } catch (error) {
+        console.error('Error querying for user risk alerts', error);
+    }
+    return null;
+}
+export async function getUserIncentives(userId: number): Promise<RowDataPacket[] | null> {
+    let queryString = `
+    SELECT *
+    FROM diabetes.Incentives
+    WHERE User_Id = ${userId}
+    ORDER BY Incentive_Id DESC, Granted_On DESC
+    LIMIT 5`;
+    try {
+        const [rows] = await pool.query(queryString);
+        return rows as RowDataPacket[];
+    } catch (error) {
+        console.error('Error querying for user incentives', error);
+    }
+    return null;
+}
+export async function getUserDiagnosis(userId: number): Promise<RowDataPacket[] | null> {
+    let queryString = `SELECT Diagnosis FROM diabetes.USERINFO WHERE User_Id = ${userId}`;
+    try {
+        const [rows] = await pool.query(queryString);
+        return rows as RowDataPacket[];
+    } catch (error) {
+        console.error('Error querying for user diagnosis', error);
     }
     return null;
 }

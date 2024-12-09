@@ -8,6 +8,7 @@ interface UserFormProps {
 
 const UserForm: React.FC<UserFormProps> = ({ isNewUser }) => {
   const navigate = useNavigate();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formData, setFormData] = useState({
     age: '',
     gender: '',
@@ -35,6 +36,21 @@ const UserForm: React.FC<UserFormProps> = ({ isNewUser }) => {
     } catch (error) {
       console.error(`Error ${isNewUser ? 'creating' : 'updating'} user:`, error);
       alert(`User ${isNewUser ? 'creation' : 'update'} failed!`);
+    }
+  };
+
+  const handleDelete = async () => {
+    const userId = localStorage.getItem('userId');
+    if (!userId) return;
+
+    try {
+      await userService.deleteUser(userId);
+      localStorage.removeItem('userId');
+      alert('User successfully deleted');
+      navigate('/login');
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Failed to delete user');
     }
   };
 
@@ -98,7 +114,46 @@ const UserForm: React.FC<UserFormProps> = ({ isNewUser }) => {
         >
           {isNewUser ? 'Create User' : 'Update User'}
         </button>
+        {!isNewUser && (
+        <button
+          type="button"
+          onClick={() => setShowDeleteConfirm(true)}
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-400 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+        >
+          Delete User
+        </button>)}
       </form>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center">
+          <div className="relative bg-white rounded-lg p-8 max-w-md mx-auto">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">Confirm Delete</h3>
+            <p className="text-sm text-gray-500 mb-6">
+              Are you sure? There's no undoing this action and it will remove your user ID and all corresponding log entries.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  handleDelete();
+                }}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-400 hover:bg-red-500 rounded-md"
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
